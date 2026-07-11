@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>广东省学生资助政策趣味问答</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+  background: linear-gradient(135deg, #00695c 0%, #00897b 30%, #009688 60%, #00695c 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 800px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== 顶部横幅 ===== */
+.header {
+  background: linear-gradient(135deg, #00695c, #00897b);
+  color: #fff;
+  padding: 18px 24px;
+  text-align: center;
+}
+.header .logo-text {
+  font-size: 12px;
+  letter-spacing: 3px;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.header .subtitle {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* ===== 主内容 ===== */
+.main {
+  padding: 20px 18px 28px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== 页面切换 ===== */
+.page { display: none; width: 100%; }
+.page.active { display: flex; flex-direction: column; align-items: center; }
+
+/* ===== 首页 ===== */
+.welcome-icon {
+  font-size: 72px;
+  margin: 20px 0 8px;
+  animation: bounce 1.5s ease infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.tips-box {
+  width: 100%;
+  background: #f3e5f5;
+  border: 1px solid #e1bee7;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 8px 0 20px;
+  text-align: center;
+}
+.tips-box .tips-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6a1b9a;
+  margin-bottom: 6px;
+}
+.tips-box .tips-text {
+  font-size: 13px;
+  color: #4a148c;
+  line-height: 1.8;
+}
+
+/* ===== 按钮 ===== */
+.btn {
+  display: inline-block;
+  padding: 14px 48px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+  touch-action: manipulation;
+}
+.btn:active { transform: scale(0.95); }
+.btn-primary {
+  background: linear-gradient(135deg, #00897b, #00a699);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0,137,123,0.35);
+  padding: 16px 56px;
+  font-size: 20px;
+}
+.btn-small {
+  padding: 10px 28px;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+/* ===== 问题卡 ===== */
+.question-card {
+  width: 100%;
+  background: linear-gradient(135deg, #f1f8f6, #e0f2f1);
+  border-radius: 16px;
+  padding: 22px 18px;
+  margin-bottom: 16px;
+  border: 2px solid #b2dfdb;
+}
+
+.difficulty-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.difficulty-easy { background: #43a047; }
+.difficulty-medium { background: #ff8f00; }
+.difficulty-hard { background: #e65100; }
+
+.question-text {
+  font-size: 17px;
+  font-weight: 600;
+  color: #004d40;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.option-btn {
+  padding: 15px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 3px solid #b2dfdb;
+  border-radius: 14px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  touch-action: manipulation;
+}
+.option-btn:active { transform: scale(0.96); }
+.option-btn.correct {
+  border-color: #43a047;
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+.option-btn.wrong {
+  border-color: #e65100;
+  background: #fff3e0;
+  color: #bf360c;
+}
+
+/* ===== 积分面板 ===== */
+.score-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #e0f2f1;
+  border-radius: 14px;
+  width: 100%;
+  justify-content: center;
+}
+.score-item { text-align: center; }
+.score-item .label { font-size: 11px; color: #546e7a; }
+.score-item .value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #00695c;
+}
+.score-divider {
+  width: 1px;
+  height: 32px;
+  background: #80cbc4;
+}
+
+/* ===== 进度条 ===== */
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+.progress-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  transition: all 0.3s;
+}
+.progress-dot.done { background: #4caf50; }
+.progress-dot.current { background: #ff9800; transform: scale(1.3); }
+.progress-dot.wrong-dot { background: #f44336; }
+
+/* ===== 结果页 ===== */
+.result-box {
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+.result-emoji { font-size: 60px; margin-bottom: 6px; }
+.prize-level {
+  display: inline-block;
+  padding: 8px 22px;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 10px 0;
+}
+.prize-1 { background: linear-gradient(135deg, #00897b, #00a699); }
+.prize-2 { background: linear-gradient(135deg, #546e7a, #78909c); }
+.prize-3 { background: linear-gradient(135deg, #66bb6a, #81c784); }
+.prize-4 { background: #80cbc4; }
+
+.prize-detail {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.8;
+  margin: 10px 0;
+}
+
+/* ===== 回复区 ===== */
+.round-summary {
+  width: 100%;
+  margin-top: 12px;
+}
+.summary-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #555;
+}
+.summary-row .s-icon { font-size: 18px; }
+
+/* ===== 管理员入口 ===== */
+.admin-entry {
+  position: absolute;
+  bottom: 6px;
+  right: 14px;
+  font-size: 10px;
+  color: #ddd;
+  cursor: pointer;
+}
+
+/* ===== 二维码工具页 ===== */
+.qr-tool-box {
+  width: 100%;
+  text-align: center;
+  padding: 20px 16px;
+}
+.qr-tool-box h3 {
+  color: #1a237e;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+.qr-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.qr-input-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid #c5cae9;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+}
+.qr-input-row input:focus { border-color: #00897b; }
+.qr-input-row button {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #00897b, #00695c);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.qr-input-row button:active { transform: scale(0.96); }
+#qrCanvasWrap {
+  display: none;
+  margin: 12px 0;
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+  border: 2px solid #e8eaf6;
+}
+#qrCanvasWrap canvas,
+#qrCanvasWrap img {
+  width: 220px !important;
+  height: 220px !important;
+}
+.qr-download-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 28px;
+  background: linear-gradient(135deg, #4caf50, #388e3c);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.qr-download-btn:active { transform: scale(0.96); }
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  justify-content: center;
+}
+.admin-tab {
+  padding: 8px 16px;
+  background: #e8eaf6;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c6bc0;
+  cursor: pointer;
+}
+.admin-tab.active {
+  background: linear-gradient(135deg, #00897b, #00695c);
+  color: #fff;
+}
+.admin-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  line-height: 26px;
+  text-align: center;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ===== 彩带 ===== */
+.confetti-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+.confetti-piece {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 500px) {
+  .header h1 { font-size: 17px; }
+  .question-text { font-size: 15px; }
+  .options-grid { grid-template-columns: 1fr; }
+  .option-btn { padding: 13px; font-size: 13px; }
+  .score-item .value { font-size: 22px; }
+  .welcome-icon { font-size: 56px; }
+  .btn { padding: 12px 36px; font-size: 16px; }
+  .btn-primary { padding: 14px 44px; font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+  <!-- 顶部 -->
+  <div class="header">
+    <div class="logo-text">🌱 数智筑梦队</div>
+    <h1>🎓 广东省学生资助政策趣味问答</h1>
+    <div class="subtitle">资助筑梦 · 数智同行</div>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="main">
+
+    <!-- ========== 页面1：欢迎页 ========== -->
+    <div class="page active" id="pageWelcome">
+      <div class="welcome-icon">🎓</div>
+
+      <div class="tips-box">
+        <div class="tips-title">📋 游戏规则</div>
+        <div class="tips-text">
+          一共 <b>10 道题</b> · 从题库随机抽取<br>
+          每题 <b>10分</b> · 满分 <b>100分</b><br>
+          答对加分，答错不扣分，<b>来了就有奖品拿！</b>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btnStart">
+        开始答题 ▶
+      </button>
+    </div>
+
+    <!-- ========== 页面2：答题页 ========== -->
+    <div class="page" id="pageQuestion">
+      <div class="progress-bar" id="progressBarQ"></div>
+
+      <div class="score-panel">
+        <div class="score-item">
+          <div class="label">第几题</div>
+          <div class="value" id="currentRound">1/3</div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-item">
+          <div class="label">累计积分</div>
+          <div class="value" id="totalScore">0</div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-item">
+          <div class="label">本题分值</div>
+          <div class="value" id="questionPoints">0</div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <span class="difficulty-badge" id="diffBadge">⭐ 简单</span>
+        <div class="question-text" id="questionText"></div>
+        <div class="options-grid" id="optionsGrid"></div>
+      </div>
+
+      <div id="answerFeedback" style="display:none;text-align:center;width:100%;"></div>
+    </div>
+
+    <!-- ========== 页面3：结果页 ========== -->
+    <div class="page" id="pageResult">
+      <div class="result-box">
+        <div class="result-emoji" id="resultEmoji">🎉</div>
+        <h2 id="resultTitle" style="color:#1a237e;margin-bottom:2px;">恭喜完成！</h2>
+        <div class="prize-level" id="prizeBadge">🏆 一等奖</div>
+        <div class="prize-detail" id="prizeDetail"></div>
+
+        <div style="font-size:14px;color:#999;margin-top:8px;">
+          总分：<span id="finalScore" style="font-weight:800;color:#00695c;font-size:22px;">0</span> 分
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 页面4：管理员工具页 ========== -->
+    <div class="page" id="pageAdmin">
+      <div class="qr-tool-box">
+        <h3>⚙️ 管理员工具箱</h3>
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="qr">二维码生成</button>
+          <button class="admin-tab" data-tab="stats">答题统计</button>
+        </div>
+
+        <div id="tabQr">
+          <div class="qr-input-row">
+            <input type="text" id="qrUrlInput" placeholder="输入网址，比如 https://xxx.github.io/quiz/">
+            <button id="btnGenQr">生成</button>
+          </div>
+          <div id="qrCanvasWrap">
+            <div id="qrCanvas"></div>
+            <a id="qrDownloadBtn" class="qr-download-btn" download="资助问答二维码.png">💾 下载二维码</a>
+          </div>
+          <div style="font-size:12px;color:#999;margin-top:8px;line-height:1.6;">
+            💡 小提示：把网站上传到 GitHub Pages 后，<br>
+            把访问链接填到上面，生成二维码打印出来即可
+          </div>
+        </div>
+
+        <div id="tabStats" style="display:none;">
+          <div id="statsContent" style="text-align:center;color:#666;font-size:14px;line-height:1.8;">
+            暂无数据<br>
+            <span style="font-size:12px;color:#999;">
+              （数据保存在本机浏览器，<br>
+              换一台手机/电脑看不到哦）
+            </span>
+          </div>
+          <button id="btnClearStats" style="margin-top:16px;padding:8px 20px;background:#f44336;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;">
+            🗑 清空本地记录
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 彩带 -->
+  <div class="confetti-container" id="confettiBox"></div>
+
+  <!-- 管理员入口 -->
+  <div class="admin-entry" id="adminEntry">⚙</div>
+
+</div>
+
+<script>
+// ==================== 题库（20题，数据来源：粤财规〔2026〕1号、财教〔2024〕181号、财教〔2024〕188号）====================
+const QUESTION_BANK = [
+  // ⭐ 简单 (1分) ========================================
+  { id:1,  diff:'easy', pts:1, q:'家庭经济特别困难、暂时无法缴纳学费和住宿费的高校新生，可以通过什么制度先办理入学手续？', opts:['国家奖学金','绿色通道','国家助学金','勤工助学'], ans:1, exp:'"绿色通道"是先办理入学手续，入学后再根据核实情况申请相应资助，不是直接发放现金。' },
+  { id:2,  diff:'easy', pts:1, q:'国家助学贷款借款学生在校学习期间的贷款利息如何处理？', opts:['由学生本人承担','由学生家庭承担','由财政给予贴息','由班主任承担'], ans:2, exp:'在校期间由财政贴息；毕业后，借款学生应当按照贷款合同和有关规定还款。' },
+  { id:3,  diff:'easy', pts:1, q:'全日制普通高校本专科二年级及以上特别优秀学生获得本专科生国家奖学金的奖励标准是多少？', opts:['每生每年6000元','每生每年8000元','每生每年10000元','每生每年12000元'], ans:2, exp:'本专科生国家奖学金奖励标准为每生每年10000元。' },
+  { id:4,  diff:'easy', pts:1, q:'品学兼优且家庭经济困难的全日制本专科二年级及以上学生，获得国家励志奖学金的奖励标准是多少？', opts:['每生每年5000元','每生每年6000元','每生每年8000元','每生每年10000元'], ans:1, exp:'本专科生国家励志奖学金奖励标准为每生每年6000元。' },
+  { id:5,  diff:'easy', pts:1, q:'中等职业学校全日制特别优秀的二年级及以上在校生，获得中职国家奖学金的奖励标准是多少？', opts:['每生每年3700元','每生每年5000元','每生每年6000元','每生每年10000元'], ans:2, exp:'规范政策名称为"中职国家奖学金"，奖励标准为每生每年6000元。' },
+  { id:6,  diff:'easy', pts:1, q:'义务教育阶段家庭经济困难初中寄宿学生的生活费补助标准是多少？', opts:['每生每年750元','每生每年1000元','每生每年1250元','每生每年1500元'], ans:3, exp:'家庭经济困难寄宿学生生活费补助标准为小学每生每年1250元、初中每生每年1500元。' },
+
+  // ⭐⭐ 中等 (2分) ======================================
+  { id:7,  diff:'medium', pts:2, q:'按照现行政策，符合条件的全日制本专科学生每生每年申请国家助学贷款的额度最高不超过多少元？', opts:['12000元','16000元','20000元','25000元'], ans:2, exp:'全日制本专科学生每生每年国家助学贷款额度最高不超过20000元，优先用于支付学费和住宿费。' },
+  { id:8,  diff:'medium', pts:2, q:'按照现行政策，符合条件的全日制研究生每生每年申请国家助学贷款的额度最高不超过多少元？', opts:['20000元','25000元','30000元','35000元'], ans:1, exp:'全日制研究生每生每年国家助学贷款额度最高不超过25000元。' },
+  { id:9,  diff:'medium', pts:2, q:'正常学制内家庭经济困难的全日制本专科学生（含预科生，不含退役士兵学生），国家助学金的平均资助标准是多少？', opts:['每生每年2300元','每生每年3000元','每生每年3700元','每生每年5000元'], ans:2, exp:'3700元是平均资助标准，不代表每名学生均固定领取3700元。' },
+  { id:10, diff:'medium', pts:2, q:'高校可在什么范围内自主确定本专科生国家助学金的具体标准，并可分为2-3档？', opts:['每生每年1200-3500元','每生每年2000-4000元','每生每年2500-5000元','每生每年3700-6000元'], ans:2, exp:'高校可在每生每年2500-5000元范围内自主确定具体标准，并按照困难程度分2-3档。' },
+  { id:11, diff:'medium', pts:2, q:'特别优秀的全日制在校博士研究生获得研究生国家奖学金的奖励标准是多少？', opts:['每生每年13000元','每生每年20000元','每生每年25000元','每生每年30000元'], ans:3, exp:'博士研究生国家奖学金奖励标准为每生每年30000元。' },
+  { id:12, diff:'medium', pts:2, q:'特别优秀的全日制在校硕士研究生获得研究生国家奖学金的奖励标准是多少？', opts:['每生每年6000元','每生每年10000元','每生每年20000元','每生每年30000元'], ans:2, exp:'硕士研究生国家奖学金奖励标准为每生每年20000元。' },
+  { id:13, diff:'medium', pts:2, q:'正常学制内、没有固定工资收入的全日制硕士研究生，国家助学金标准是多少？', opts:['每生每年3700元','每生每年6000元','每生每年10000元','每生每年13000元'], ans:1, exp:'研究生国家助学金标准为博士研究生每生每年13000元、硕士研究生每生每年6000元。' },
+  { id:14, diff:'medium', pts:2, q:'符合条件的广东省生源家庭经济困难大学本专科一年级新生，可申请的广东省家庭经济困难大学新生资助最高不超过多少元？', opts:['3700元','5000元','6000元','10000元'], ans:2, exp:'该资助用于缴纳第一学年学费，属于一次性资助；学费低于6000元的，按照实际应缴纳学费金额资助。' },
+  { id:15, diff:'medium', pts:2, q:'具有正式注册学籍的普通高中家庭经济困难学生，国家助学金的平均资助标准是多少？', opts:['每生每年1200元','每生每年2000元','每生每年2300元','每生每年3500元'], ans:2, exp:'普通高中国家助学金平均标准为每生每年2300元，具体可在每生每年1200-3500元范围内分2-3档。' },
+
+  // ⭐⭐⭐ 困难 (3分) ====================================
+  { id:16, diff:'hard', pts:3, q:'义务教育阶段家庭经济困难小学非寄宿学生的生活费补助标准是多少？', opts:['每生每年625元','每生每年750元','每生每年1000元','每生每年1250元'], ans:0, exp:'家庭经济困难非寄宿学生生活费补助标准为小学每生每年625元、初中每生每年750元。' },
+  { id:17, diff:'hard', pts:3, q:'下列关于中等职业学校免学费政策的表述，哪一项正确？', opts:['所有中职学生均无条件免除全部费用','符合政策规定范围的中职全日制正式学籍一、二、三年级学生可以享受免学费政策','只有中职三年级学生可以享受','免学费表示住宿费、生活费等全部免除'], ans:1, exp:'中职免学费政策有明确的学籍、年级和对象范围，不等于所有中职学生无条件免除全部费用；民办学校学费高于财政补助标准的部分，可按规定继续收取。' },
+  { id:18, diff:'hard', pts:3, q:'符合条件的3-6岁学前教育家庭经济困难儿童、孤儿和残疾儿童，资助标准是多少？', opts:['每生每年625元','每生每年1000元','每生每年1250元','每生每年1500元'], ans:1, exp:'适用对象为在公办幼儿园、普惠性民办幼儿园或幼儿班就读的3-6岁常住人口家庭经济困难儿童、孤儿和残疾儿童。' },
+  
+  // ✅❌ 判断题 (2分) ====================================
+  { id:19, diff:'medium', pts:2, q:'国家助学贷款属于贷款，借款学生毕业后应按照贷款合同和有关规定还款。', opts:['正确','错误'], ans:0, exp:'在校期间财政贴息，不等于贷款本金无须偿还。宣传时不得表述为"助学贷款不用还"。', type:'judge' },
+  { id:20, diff:'medium', pts:2, q:'符合条件的广东省生源家庭经济困难大学本专科一年级新生，都会固定获得6000元新生资助。', opts:['正确','错误'], ans:1, exp:'正确表述为"最高不超过6000元"。第一学年学费低于6000元的，按实际应缴纳学费金额资助；该项目为一次性资助。', type:'judge' }
+];
+
+// ==================== 状态 ====================
+const TOTAL = 10;
+const state = {
+  round: 0,
+  score: 0,
+  curQ: null,
+  curPts: 0,
+  answered: false,
+  history: [],    // { q, picked, correct, pts }
+  usedIds: []     // 本轮已出过的题id，避免重复
+};
+
+// ==================== 出题逻辑 ====================
+function pickQuestion() {
+  const pool = QUESTION_BANK.filter(q => !state.usedIds.includes(q.id));
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  state.usedIds.push(q.id);
+  return q;
+}
+
+// ==================== 开始一轮 ====================
+function startRound() {
+  state.round++;
+  state.answered = false;
+
+  const q = pickQuestion();
+  state.curQ = q;
+  state.curPts = 10;
+
+  updateProgress();
+
+  // 显示题目
+  const badge = document.getElementById('diffBadge');
+  badge.textContent = '🎯 第' + state.round + '题';
+  badge.className = 'difficulty-badge difficulty-medium';
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('questionPoints').textContent = 10;
+  document.getElementById('currentRound').textContent = state.round + '/' + TOTAL;
+  document.getElementById('totalScore').textContent = state.score;
+
+  // 渲染选项
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const labels = q.type === 'judge' ? ['✅','❌'] : ['A','B','C','D'];
+  grid.style.gridTemplateColumns = q.type === 'judge' ? '1fr 1fr' : '1fr 1fr';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = labels[i] + ' ' + opt;
+    btn.addEventListener('click', () => pickAnswer(i));
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('answerFeedback').style.display = 'none';
+
+  switchPage('question');
+}
+
+// ==================== 选答案 ====================
+function pickAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = state.curQ;
+  const correct = idx === q.ans;
+  const earned = correct ? state.curPts : 0;
+  state.score += earned;
+  state.history.push({ q: q.q, picked: idx, correct, pts: earned, exp: q.exp });
+
+  // 高亮
+  const btns = document.querySelectorAll('#optionsGrid .option-btn');
+  btns.forEach((b, i) => {
+    b.style.pointerEvents = 'none';
+    if (i === q.ans) b.classList.add('correct');
+    if (i === idx && !correct) b.classList.add('wrong');
+  });
+
+  // 反馈
+  const fb = document.getElementById('answerFeedback');
+  fb.style.display = 'block';
+  const isLast = state.round >= TOTAL;
+
+  if (correct) {
+    fb.innerHTML = `
+      <div style="font-size:44px;margin-bottom:4px;">✅</div>
+      <div style="font-size:17px;font-weight:700;color:#2e7d32;margin-bottom:6px;">答对啦！+${earned} 分</div>
+      <div style="font-size:13px;color:#555;">${q.exp}</div>
+      <button class="btn btn-primary btn-small" id="btnNext" style="margin-top:14px;">
+        ${isLast ? '🎁 查看结果' : '▶ 下一题'}
+      </button>
+    `;
+    if (state.round % 3 === 0) spawnConfetti();
+  } else {
+    const ansLabel = q.type === 'judge' ? q.opts[q.ans] : ['A','B','C','D'][q.ans];
+    fb.innerHTML = `
+      <div style="font-size:44px;margin-bottom:4px;">❌</div>
+      <div style="font-size:17px;font-weight:700;color:#c62828;margin-bottom:2px;">
+        差一点！答案是 ${ansLabel}
+      </div>
+      <div style="font-size:13px;color:#555;">${q.exp}</div>
+      <button class="btn btn-primary btn-small" id="btnNext" style="margin-top:14px;">
+        ${isLast ? '🎁 查看结果' : '▶ 下一题'}
+      </button>
+    `;
+  }
+
+  document.getElementById('totalScore').textContent = state.score;
+
+  // 更新顶部圆点（答错标红）
+  updateProgress();
+
+  document.getElementById('btnNext').addEventListener('click', () => {
+    if (state.round >= TOTAL) {
+      showResult();
+    } else {
+      startRound();
+    }
+  });
+}
+
+// ==================== 结果页 ====================
+function showResult() {
+  const s = state.score;
+  let emoji, title, badgeClass, badgeText, detail;
+
+  if (s >= 90) {
+    emoji = '🏆'; title = '恭喜获得一等奖！';
+    badgeClass = 'prize-1'; badgeText = '🥇 一等奖';
+    detail = '太棒了！你是资助政策小达人，凭此页面领取一等奖奖品～';
+  } else if (s >= 70) {
+    emoji = '🎉'; title = '恭喜获得二等奖！';
+    badgeClass = 'prize-2'; badgeText = '🥈 二等奖';
+    detail = '非常优秀！凭此页面领取二等奖奖品～';
+  } else if (s >= 50) {
+    emoji = '👍'; title = '恭喜获得三等奖！';
+    badgeClass = 'prize-3'; badgeText = '🥉 三等奖';
+    detail = '不错哦！凭此页面领取三等奖奖品～';
+  } else {
+    emoji = '😊'; title = '谢谢参与！';
+    badgeClass = 'prize-4'; badgeText = '🎁 参与奖';
+    detail = '感谢参与！凭此页面领取参与奖奖品～';
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('prizeBadge').className = 'prize-level ' + badgeClass;
+  document.getElementById('prizeBadge').textContent = badgeText;
+  document.getElementById('prizeDetail').textContent = detail;
+  document.getElementById('finalScore').textContent = s;
+
+  switchPage('result');
+
+  if (s >= 90) spawnConfetti();
+}
+
+// ==================== 进度条 ====================
+function updateProgress() {
+  ['progressBar', 'progressBarQ'].forEach(id => {
+    const bar = document.getElementById(id);
+    if (!bar) return;
+    bar.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'progress-dot';
+      if (i < state.history.length) {
+        dot.classList.add(state.history[i].correct ? 'done' : 'wrong-dot');
+      }
+      if (i === state.round && i < TOTAL) dot.classList.add('current');
+      bar.appendChild(dot);
+    }
+  });
+}
+
+// ==================== 页面切换 ====================
+function switchPage(name) {
+  ['welcome','question','result'].forEach(n => {
+    const el = document.getElementById('page' + n.charAt(0).toUpperCase() + n.slice(1));
+    el.classList[n === name ? 'add' : 'remove']('active');
+  });
+  document.querySelector('.main').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== 彩带 ====================
+function spawnConfetti() {
+  const box = document.getElementById('confettiBox');
+  const colors = ['#00897b','#00a699','#66bb6a','#81c784','#ff8f00','#ffab00','#ce93d8','#ba68c8'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+    p.style.animationDelay = Math.random() * 0.6 + 's';
+    box.appendChild(p);
+  }
+  setTimeout(() => { box.innerHTML = ''; }, 3500);
+}
+
+// ==================== 事件 ====================
+document.getElementById('btnStart').addEventListener('click', startRound);
+
+// ==================== 管理员入口（连点5次）====================
+let adminClicks = 0;
+document.getElementById('adminEntry').addEventListener('click', () => {
+  adminClicks++;
+  if (adminClicks >= 5) {
+    adminClicks = 0;
+    const pwd = prompt('管理员密码：');
+    if (pwd === '2026') {
+      openAdmin();
+    }
+  }
+  setTimeout(() => { adminClicks = 0; }, 2000);
+});
+
+// 打开管理员页
+function openAdmin() {
+  loadStats();
+  switchPage('admin');
+}
+
+// 管理员 tab 切换
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const name = tab.dataset.tab;
+    document.getElementById('tabQr').style.display = name === 'qr' ? 'block' : 'none';
+    document.getElementById('tabStats').style.display = name === 'stats' ? 'block' : 'none';
+    if (name === 'stats') loadStats();
+  });
+});
+
+// ==================== 二维码生成 ====================
+let qrInstance = null;
+document.getElementById('btnGenQr').addEventListener('click', generateQr);
+document.getElementById('qrUrlInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') generateQr();
+});
+
+function generateQr() {
+  const url = document.getElementById('qrUrlInput').value.trim();
+  if (!url) {
+    alert('请输入网址');
+    return;
+  }
+  const wrap = document.getElementById('qrCanvasWrap');
+  const canvas = document.getElementById('qrCanvas');
+  canvas.innerHTML = '';
+  qrInstance = new QRCode(canvas, {
+    text: url,
+    width: 220,
+    height: 220,
+    colorDark: '#00695c',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  wrap.style.display = 'block';
+
+  setTimeout(() => {
+    const img = canvas.querySelector('img') || canvas.querySelector('canvas');
+    if (img) {
+      const src = img.tagName === 'IMG' ? img.src : img.toDataURL('image/png');
+      document.getElementById('qrDownloadBtn').href = src;
+    }
+  }, 100);
+}
+
+// ==================== 答题统计（localStorage）====================
+function saveRoundStats() {
+  try {
+    const records = JSON.parse(localStorage.getItem('quizRecords') || '[]');
+    records.push({
+      score: state.score,
+      total: TOTAL,
+      correct: state.history.filter(h => h.correct).length,
+      time: new Date().toLocaleString('zh-CN')
+    });
+    if (records.length > 200) records.shift();
+    localStorage.setItem('quizRecords', JSON.stringify(records));
+  } catch(e) {}
+}
+
+function loadStats() {
+  try {
+    const records = JSON.parse(localStorage.getItem('quizRecords') || '[]');
+    const box = document.getElementById('statsContent');
+    if (records.length === 0) {
+      box.innerHTML = '暂无数据<br><span style="font-size:12px;color:#999;">（数据保存在本机浏览器，换一台手机/电脑看不到哦）</span>';
+      return;
+    }
+    const totalRounds = records.length;
+    const totalScore = records.reduce((s, r) => s + r.score, 0);
+    const avgScore = (totalScore / totalRounds).toFixed(1);
+    const maxScore = Math.max(...records.map(r => r.score));
+    const totalCorrect = records.reduce((s, r) => s + r.correct, 0);
+    const totalQuestions = records.reduce((s, r) => s + r.total, 0);
+    const avgRate = totalQuestions > 0 ? Math.round(totalCorrect / totalQuestions * 100) : 0;
+
+    box.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="background:#e8eaf6;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#7986cb;">参与轮次</div>
+          <div style="font-size:24px;font-weight:800;color:#1a237e;">${totalRounds}</div>
+        </div>
+        <div style="background:#fff8e1;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#ffb300;">平均分</div>
+          <div style="font-size:24px;font-weight:800;color:#e65100;">${avgScore}</div>
+        </div>
+        <div style="background:#e8f5e9;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#66bb6a;">最高分</div>
+          <div style="font-size:24px;font-weight:800;color:#2e7d32;">${maxScore}</div>
+        </div>
+        <div style="background:#fce4ec;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#f06292;">正确率</div>
+          <div style="font-size:24px;font-weight:800;color:#c2185b;">${avgRate}%</div>
+        </div>
+      </div>
+      <div style="text-align:left;font-size:12px;color:#999;max-height:180px;overflow-y:auto;">
+        ${records.slice(-10).reverse().map(r => `
+          <div style="padding:6px 8px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;">
+            <span>${r.time}</span>
+            <span style="font-weight:600;color:#1a237e;">${r.score}分</span>
+          </div>
+        `).join('')}
+      </div>
+      <div style="font-size:11px;color:#ccc;margin-top:6px;">最近10条记录</div>
+    `;
+  } catch(e) {}
+}
+
+document.getElementById('btnClearStats').addEventListener('click', () => {
+  if (confirm('确定要清空所有本地答题记录吗？')) {
+    localStorage.removeItem('quizRecords');
+    loadStats();
+  }
+});
+
+// 原有结果页触发时保存记录
+const origShowResult = showResult;
+showResult = function() {
+  origShowResult();
+  saveRoundStats();
+};
+
+// ==================== 页面切换（新增 admin）====================
+const origSwitchPage = switchPage;
+switchPage = function(name) {
+  ['welcome','question','result','admin'].forEach(n => {
+    const el = document.getElementById('page' + n.charAt(0).toUpperCase() + n.slice(1));
+    if (el) {
+      el.classList[n === name ? 'add' : 'remove']('active');
+    }
+  });
+  document.querySelector('.main').scrollIntoView({ behavior: 'smooth' });
+};
+
+// ==================== 初始化 ====================
+updateProgress();
+console.log('✅ 资助政策趣味问答 已就绪');
+console.log('📱 平板/手机适配 | 🔌 断网可用 | 📦 20题(18单选+2判断) | 10题/轮 | 10分/题');
+</script>
+</body>
+</html>

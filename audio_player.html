@@ -115,12 +115,12 @@
 
     <script>
         var audioMap = {
-            '1': { title: '入学不愁', file: 'audio1_ruxue' },
-            '2': { title: '学费不慌', file: 'audio2_xuefei' },
-            '3': { title: '生活有助', file: 'audio3_shenghuo' },
-            '4': { title: '升学不断', file: 'audio4_shengxue' },
-            '5': { title: '广东专项', file: 'audio5_guangdong' },
-            '6': { title: '优秀有奖', file: 'audio6_youxiu' }
+            '1': { title: '入学不愁', file: 'audio1_ruxue.m4a' },
+            '2': { title: '学费不慌', file: 'audio2_xuefei.m4a' },
+            '3': { title: '生活有助', file: 'audio3_shenghuo.m4a' },
+            '4': { title: '升学不断', file: 'audio4_shengxue.m4a' },
+            '5': { title: '广东专项', file: 'audio5_guangdong.m4a' },
+            '6': { title: '优秀有奖', file: 'audio6_youxiu.m4a' }
         };
 
         function getQueryParam(name) {
@@ -139,7 +139,7 @@
 
         if (audioInfo) {
             document.getElementById('audioTitle').textContent = audioInfo.title;
-            audio.src = audioInfo.file + '.m4a';
+            audio.src = audioInfo.file;
         } else {
             document.getElementById('audioTitle').textContent = '录音不存在';
             playBtn.style.display = 'none';

@@ -4,32 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数智筑梦队 - 资助政策录音二维码</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
             background: linear-gradient(135deg, #e0f7f6 0%, #f5f5f0 50%, #fce4ec 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: #2d6a6a;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        .header p {
-            color: #666;
-            font-size: 14px;
-        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #2d6a6a; font-size: 28px; margin-bottom: 10px; }
+        .header p { color: #666; font-size: 14px; }
         .input-section {
             max-width: 800px;
             margin: 0 auto 30px;
@@ -38,25 +23,10 @@
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .input-section h3 {
-            color: #2d6a6a;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        .url-inputs {
-            display: grid;
-            gap: 10px;
-        }
-        .url-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .url-row label {
-            min-width: 100px;
-            color: #333;
-            font-weight: 500;
-        }
+        .input-section h3 { color: #2d6a6a; margin-bottom: 15px; font-size: 16px; }
+        .url-inputs { display: grid; gap: 10px; }
+        .url-row { display: flex; align-items: center; gap: 10px; }
+        .url-row label { min-width: 100px; color: #333; font-weight: 500; }
         .url-row input {
             flex: 1;
             padding: 8px 12px;
@@ -65,10 +35,7 @@
             font-size: 14px;
             transition: border-color 0.3s;
         }
-        .url-row input:focus {
-            outline: none;
-            border-color: #2d6a6a;
-        }
+        .url-row input:focus { outline: none; border-color: #2d6a6a; }
         .generate-btn {
             display: block;
             width: 100%;
@@ -83,10 +50,7 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(45, 106, 106, 0.3);
-        }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(45, 106, 106, 0.3); }
         .qr-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -94,16 +58,8 @@
             max-width: 900px;
             margin: 0 auto;
         }
-        @media (max-width: 768px) {
-            .qr-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 480px) {
-            .qr-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 768px) { .qr-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .qr-grid { grid-template-columns: 1fr; } }
         .qr-card {
             background: white;
             border-radius: 16px;
@@ -112,15 +68,8 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             transition: transform 0.3s, box-shadow 0.3s;
         }
-        .qr-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-        }
-        .qr-card h3 {
-            color: #2d6a6a;
-            font-size: 20px;
-            margin-bottom: 15px;
-        }
+        .qr-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .qr-card h3 { color: #2d6a6a; font-size: 20px; margin-bottom: 15px; }
         .qr-container {
             background: white;
             padding: 15px;
@@ -128,9 +77,7 @@
             display: inline-block;
             margin-bottom: 15px;
         }
-        .qr-container canvas {
-            display: block;
-        }
+        .qr-container canvas { display: block; }
         .placeholder {
             width: 200px;
             height: 200px;
@@ -154,13 +101,8 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        .download-btn:hover {
-            background: #26a69a;
-        }
-        .download-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+        .download-btn:hover { background: #26a69a; }
+        .download-btn:disabled { background: #ccc; cursor: not-allowed; }
         .print-btn {
             position: fixed;
             bottom: 20px;
@@ -176,21 +118,11 @@
             box-shadow: 0 4px 15px rgba(244, 143, 177, 0.4);
             transition: transform 0.2s;
         }
-        .print-btn:hover {
-            transform: scale(1.05);
-        }
+        .print-btn:hover { transform: scale(1.05); }
         @media print {
-            .input-section, .print-btn, .download-btn {
-                display: none !important;
-            }
-            body {
-                background: white;
-            }
-            .qr-card {
-                break-inside: avoid;
-                box-shadow: none;
-                border: 1px solid #eee;
-            }
+            .input-section, .print-btn, .download-btn { display: none !important; }
+            body { background: white; }
+            .qr-card { break-inside: avoid; box-shadow: none; border: 1px solid #eee; }
         }
     </style>
 </head>
@@ -203,99 +135,272 @@
     <div class="input-section">
         <h3>录音文件在线链接（已自动配置为 GitHub Pages 地址）</h3>
         <div class="url-inputs">
-            <div class="url-row">
-                <label>入学不愁</label>
-                <input type="text" id="url1" value="https://zerostar1118.github.io/zizhu_quiz/入学不愁.m4a">
-            </div>
-            <div class="url-row">
-                <label>学费不慌</label>
-                <input type="text" id="url2" value="https://zerostar1118.github.io/zizhu_quiz/学费不慌.m4a">
-            </div>
-            <div class="url-row">
-                <label>生活有助</label>
-                <input type="text" id="url3" value="https://zerostar1118.github.io/zizhu_quiz/生活有助.m4a">
-            </div>
-            <div class="url-row">
-                <label>升学不断</label>
-                <input type="text" id="url4" value="https://zerostar1118.github.io/zizhu_quiz/升学不断.m4a">
-            </div>
-            <div class="url-row">
-                <label>广东专项</label>
-                <input type="text" id="url5" value="https://zerostar1118.github.io/zizhu_quiz/广东专项.m4a">
-            </div>
-            <div class="url-row">
-                <label>优秀有奖</label>
-                <input type="text" id="url6" value="https://zerostar1118.github.io/zizhu_quiz/优秀有奖.m4a">
-            </div>
+            <div class="url-row"><label>入学不愁</label><input type="text" id="url1" value="https://zerostar1118.github.io/zizhu_quiz/入学不愁.m4a"></div>
+            <div class="url-row"><label>学费不慌</label><input type="text" id="url2" value="https://zerostar1118.github.io/zizhu_quiz/学费不慌.m4a"></div>
+            <div class="url-row"><label>生活有助</label><input type="text" id="url3" value="https://zerostar1118.github.io/zizhu_quiz/生活有助.m4a"></div>
+            <div class="url-row"><label>升学不断</label><input type="text" id="url4" value="https://zerostar1118.github.io/zizhu_quiz/升学不断.m4a"></div>
+            <div class="url-row"><label>广东专项</label><input type="text" id="url5" value="https://zerostar1118.github.io/zizhu_quiz/广东专项.m4a"></div>
+            <div class="url-row"><label>优秀有奖</label><input type="text" id="url6" value="https://zerostar1118.github.io/zizhu_quiz/优秀有奖.m4a"></div>
         </div>
         <button class="generate-btn" onclick="generateAllQR()">重新生成二维码</button>
     </div>
 
-    <div class="qr-grid" id="qrGrid">
-        <!-- 入学不愁 -->
-        <div class="qr-card">
-            <h3>入学不愁</h3>
-            <div class="qr-container" id="qr1">
-                <div class="placeholder">请输入链接后生成</div>
-            </div>
-            <br>
-            <button class="download-btn" id="dl1" onclick="downloadQR('qr1', '入学不愁')" disabled>下载二维码</button>
-        </div>
-
-        <!-- 学费不慌 -->
-        <div class="qr-card">
-            <h3>学费不慌</h3>
-            <div class="qr-container" id="qr2">
-                <div class="placeholder">请输入链接后生成</div>
-            </div>
-            <br>
-            <button class="download-btn" id="dl2" onclick="downloadQR('qr2', '学费不慌')" disabled>下载二维码</button>
-        </div>
-
-        <!-- 生活有助 -->
-        <div class="qr-card">
-            <h3>生活有助</h3>
-            <div class="qr-container" id="qr3">
-                <div class="placeholder">请输入链接后生成</div>
-            </div>
-            <br>
-            <button class="download-btn" id="dl3" onclick="downloadQR('qr3', '生活有助')" disabled>下载二维码</button>
-        </div>
-
-        <!-- 升学不断 -->
-        <div class="qr-card">
-            <h3>升学不断</h3>
-            <div class="qr-container" id="qr4">
-                <div class="placeholder">请输入链接后生成</div>
-            </div>
-            <br>
-            <button class="download-btn" id="dl4" onclick="downloadQR('qr4', '升学不断')" disabled>下载二维码</button>
-        </div>
-
-        <!-- 广东专项 -->
-        <div class="qr-card">
-            <h3>广东专项</h3>
-            <div class="qr-container" id="qr5">
-                <div class="placeholder">请输入链接后生成</div>
-            </div>
-            <br>
-            <button class="download-btn" id="dl5" onclick="downloadQR('qr5', '广东专项')" disabled>下载二维码</button>
-        </div>
-
-        <!-- 优秀有奖 -->
-        <div class="qr-card">
-            <h3>优秀有奖</h3>
-            <div class="qr-container" id="qr6">
-                <div class="placeholder">请输入链接后生成</div>
-            </div>
-            <br>
-            <button class="download-btn" id="dl6" onclick="downloadQR('qr6', '优秀有奖')" disabled>下载二维码</button>
-        </div>
+    <div class="qr-grid">
+        <div class="qr-card"><h3>入学不愁</h3><div class="qr-container" id="qr1"><div class="placeholder">请输入链接后生成</div></div><button class="download-btn" id="dl1" onclick="downloadQR('qr1', '入学不愁')" disabled>下载二维码</button></div>
+        <div class="qr-card"><h3>学费不慌</h3><div class="qr-container" id="qr2"><div class="placeholder">请输入链接后生成</div></div><button class="download-btn" id="dl2" onclick="downloadQR('qr2', '学费不慌')" disabled>下载二维码</button></div>
+        <div class="qr-card"><h3>生活有助</h3><div class="qr-container" id="qr3"><div class="placeholder">请输入链接后生成</div></div><button class="download-btn" id="dl3" onclick="downloadQR('qr3', '生活有助')" disabled>下载二维码</button></div>
+        <div class="qr-card"><h3>升学不断</h3><div class="qr-container" id="qr4"><div class="placeholder">请输入链接后生成</div></div><button class="download-btn" id="dl4" onclick="downloadQR('qr4', '升学不断')" disabled>下载二维码</button></div>
+        <div class="qr-card"><h3>广东专项</h3><div class="qr-container" id="qr5"><div class="placeholder">请输入链接后生成</div></div><button class="download-btn" id="dl5" onclick="downloadQR('qr5', '广东专项')" disabled>下载二维码</button></div>
+        <div class="qr-card"><h3>优秀有奖</h3><div class="qr-container" id="qr6"><div class="placeholder">请输入链接后生成</div></div><button class="download-btn" id="dl6" onclick="downloadQR('qr6', '优秀有奖')" disabled>下载二维码</button></div>
     </div>
 
     <button class="print-btn" onclick="window.print()">打印二维码</button>
 
     <script>
+        function QRCodeGenerator() {
+            this.ALPHANUMERIC_TABLE = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+            this.G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+            this.G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+            this.G15_MASK = (1 << 15) - 1;
+        }
+
+        QRCodeGenerator.prototype.encode = function(data) {
+            var mode = this.getMode(data);
+            var bits = [];
+            bits = bits.concat(this.toBits(mode, 4));
+            bits = bits.concat(this.toBits(data.length, mode === 1 ? 10 : mode === 2 ? 9 : 8));
+            bits = bits.concat(this.encodeData(data, mode));
+            while (bits.length % 8 !== 0) bits.push(0);
+            var blocks = this.getBlocks(bits);
+            var finalBits = [];
+            blocks.forEach(function(block) {
+                finalBits = finalBits.concat(block.data);
+                finalBits = finalBits.concat(block.ecc);
+            });
+            return finalBits;
+        };
+
+        QRCodeGenerator.prototype.getMode = function(data) {
+            if (/^[0-9]+$/.test(data)) return 1;
+            if (/^[A-Z0-9 $%*+\-.\/:]+$/.test(data)) return 2;
+            return 4;
+        };
+
+        QRCodeGenerator.prototype.toBits = function(value, length) {
+            var bits = [];
+            for (var i = length - 1; i >= 0; i--) bits.push((value >> i) & 1);
+            return bits;
+        };
+
+        QRCodeGenerator.prototype.encodeData = function(data, mode) {
+            var bits = [];
+            if (mode === 1) {
+                for (var i = 0; i < data.length; i += 3) {
+                    var num = parseInt(data.substr(i, 3)) || 0;
+                    bits = bits.concat(this.toBits(num, 10));
+                }
+            } else if (mode === 2) {
+                for (var i = 0; i < data.length; i += 2) {
+                    var c1 = this.ALPHANUMERIC_TABLE.indexOf(data[i]);
+                    var c2 = i + 1 < data.length ? this.ALPHANUMERIC_TABLE.indexOf(data[i + 1]) : 0;
+                    bits = bits.concat(this.toBits(c1 * 45 + c2, 11));
+                }
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    bits = bits.concat(this.toBits(data.charCodeAt(i), 8));
+                }
+            }
+            return bits;
+        };
+
+        QRCodeGenerator.prototype.getBlocks = function(bits) {
+            var totalCount = bits.length / 8;
+            var version = this.getVersion(totalCount);
+            var ecLevel = 0;
+            var blockInfo = this.getBlockInfo(version, ecLevel);
+            var blocks = [];
+            var blockSize = Math.floor(totalCount / blockInfo.totalBlocks);
+            var remainder = totalCount % blockInfo.totalBlocks;
+            var dataIndex = 0;
+            for (var i = 0; i < blockInfo.totalBlocks; i++) {
+                var size = blockSize + (i < remainder ? 1 : 0);
+                var data = bits.slice(dataIndex * 8, (dataIndex + size) * 8);
+                var ecc = this.generateECC(data, blockInfo.eccPerBlock);
+                blocks.push({ data: data, ecc: ecc });
+                dataIndex += size;
+            }
+            return blocks;
+        };
+
+        QRCodeGenerator.prototype.getVersion = function(count) {
+            var thresholds = [0, 17, 32, 53, 78, 106, 134, 154, 192, 230, 271, 321, 367, 425, 458, 520, 586, 644, 718, 792, 858, 929, 1003, 1091, 1171];
+            for (var i = 1; i < thresholds.length; i++) {
+                if (count <= thresholds[i]) return i;
+            }
+            return 25;
+        };
+
+        QRCodeGenerator.prototype.getBlockInfo = function(version, ecLevel) {
+            var info = [
+                [{totalBlocks:1, ecPerBlock:7}, {totalBlocks:1, ecPerBlock:10}, {totalBlocks:1, ecPerBlock:13}, {totalBlocks:1, ecPerBlock:17}],
+                [{totalBlocks:1, ecPerBlock:10}, {totalBlocks:1, ecPerBlock:16}, {totalBlocks:1, ecPerBlock:22}, {totalBlocks:1, ecPerBlock:28}],
+                [{totalBlocks:1, ecPerBlock:15}, {totalBlocks:1, ecPerBlock:26}, {totalBlocks:2, ecPerBlock:18}, {totalBlocks:2, ecPerBlock:22}],
+                [{totalBlocks:1, ecPerBlock:20}, {totalBlocks:2, ecPerBlock:18}, {totalBlocks:2, ecPerBlock:26}, {totalBlocks:4, ecPerBlock:16}],
+                [{totalBlocks:1, ecPerBlock:26}, {totalBlocks:1, ecPerBlock:36}, {totalBlocks:2, ecPerBlock:36}, {totalBlocks:2, ecPerBlock:44}],
+                [{totalBlocks:2, ecPerBlock:18}, {totalBlocks:2, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:30}],
+                [{totalBlocks:2, ecPerBlock:20}, {totalBlocks:2, ecPerBlock:30}, {totalBlocks:2, ecPerBlock:42}, {totalBlocks:4, ecPerBlock:36}],
+                [{totalBlocks:2, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:38}, {totalBlocks:4, ecPerBlock:48}],
+                [{totalBlocks:2, ecPerBlock:30}, {totalBlocks:2, ecPerBlock:42}, {totalBlocks:4, ecPerBlock:46}, {totalBlocks:5, ecPerBlock:42}]
+            ];
+            return info[Math.min(version - 1, info.length - 1)][ecLevel];
+        };
+
+        QRCodeGenerator.prototype.generateECC = function(data, eccCount) {
+            var poly = eccCount === 7 ? this.G15 : this.G18;
+            var polyCount = eccCount === 7 ? 15 : 18;
+            var reg = (1 << polyCount) - 1;
+            for (var i = 0; i < data.length; i++) {
+                var bit = data[i];
+                if ((reg >> (polyCount - 1)) & 1) {
+                    reg = ((reg << 1) ^ poly) & this.G15_MASK;
+                } else {
+                    reg = (reg << 1) & this.G15_MASK;
+                }
+                if (bit) reg ^= 1;
+            }
+            for (var i = 0; i < polyCount; i++) {
+                if ((reg >> (polyCount - 1)) & 1) {
+                    reg = ((reg << 1) ^ poly) & this.G15_MASK;
+                } else {
+                    reg = (reg << 1) & this.G15_MASK;
+                }
+            }
+            return this.toBits(reg, polyCount);
+        };
+
+        QRCodeGenerator.prototype.createMatrix = function(data) {
+            var bits = this.encode(data);
+            var version = this.getVersion(bits.length / 8);
+            var size = version * 4 + 17;
+            var matrix = [];
+            for (var i = 0; i < size; i++) matrix[i] = [];
+            this.addFinderPatterns(matrix, size);
+            this.addAlignmentPatterns(matrix, version, size);
+            this.addTimingPatterns(matrix, size);
+            this.addFormatInfo(matrix, size, 0);
+            this.addVersionInfo(matrix, version, size);
+            this.fillData(matrix, bits, size);
+            return matrix;
+        };
+
+        QRCodeGenerator.prototype.addFinderPatterns = function(matrix, size) {
+            var positions = [[0, 0], [size - 7, 0], [0, size - 7]];
+            positions.forEach(function(pos) {
+                for (var i = -1; i <= 7; i++) {
+                    for (var j = -1; j <= 7; j++) {
+                        var x = pos[0] + i, y = pos[1] + j;
+                        if (x < 0 || x >= size || y < 0 || y >= size) continue;
+                        var isOuter = i === -1 || i === 7 || j === -1 || j === 7;
+                        var isInner = i >= 2 && i <= 4 && j >= 2 && j <= 4;
+                        matrix[x][y] = isOuter || isInner ? 1 : 0;
+                    }
+                }
+            });
+        };
+
+        QRCodeGenerator.prototype.addAlignmentPatterns = function(matrix, version, size) {
+            if (version < 2) return;
+            var positions = [6];
+            var count = Math.floor(version / 7) + 2;
+            var step = (size - 13) / (count - 1);
+            for (var i = 0; i < count - 1; i++) positions.push(Math.floor(6 + (i + 1) * step));
+            positions.forEach(function(x) {
+                positions.forEach(function(y) {
+                    if ((x < 9 && y < 9) || (x < 9 && y > size - 9) || (x > size - 9 && y < 9)) return;
+                    for (var i = -2; i <= 2; i++) {
+                        for (var j = -2; j <= 2; j++) {
+                            var isOuter = i === -2 || i === 2 || j === -2 || j === 2;
+                            var isInner = i === 0 && j === 0;
+                            matrix[x + i][y + j] = isOuter || isInner ? 1 : 0;
+                        }
+                    }
+                });
+            });
+        };
+
+        QRCodeGenerator.prototype.addTimingPatterns = function(matrix, size) {
+            for (var i = 8; i < size - 8; i++) {
+                matrix[6][i] = i % 2 === 0 ? 1 : 0;
+                matrix[i][6] = i % 2 === 0 ? 1 : 0;
+            }
+        };
+
+        QRCodeGenerator.prototype.addFormatInfo = function(matrix, size, ecLevel) {
+            var format = (ecLevel << 3) | 0;
+            var mask = 0x5412;
+            var data = format ^ mask;
+            for (var i = 0; i < 15; i++) {
+                var bit = (data >> i) & 1;
+                if (i < 6) { matrix[i][8] = bit; matrix[8][size - 1 - i] = bit; }
+                else if (i === 6) { matrix[6][8] = bit; }
+                else { matrix[size - 15 + i][8] = bit; matrix[8][15 - i] = bit; }
+            }
+        };
+
+        QRCodeGenerator.prototype.addVersionInfo = function(matrix, version, size) {
+            if (version < 7) return;
+            var data = version;
+            for (var i = 0; i < 18; i++) {
+                var bit = (data >> i) & 1;
+                var row = Math.floor(i / 3);
+                var col = i % 3;
+                matrix[row][size - 11 + col] = bit;
+                matrix[size - 11 + col][row] = bit;
+            }
+        };
+
+        QRCodeGenerator.prototype.fillData = function(matrix, bits, size) {
+            var bitIndex = 0;
+            for (var col = size - 1; col > 0; col -= 2) {
+                for (var row = size - 1; row >= 0; row--) {
+                    for (var j = 0; j < 2; j++) {
+                        var c = col - j;
+                        if (c <= 6) continue;
+                        if (matrix[row][c] !== undefined) continue;
+                        matrix[row][c] = bitIndex < bits.length ? bits[bitIndex++] : 0;
+                    }
+                }
+            }
+        };
+
+        function drawQRCode(canvas, text, options) {
+            var opts = options || {};
+            var size = opts.width || 200;
+            var margin = opts.margin || 2;
+            var fgColor = opts.color && opts.color.dark ? opts.color.dark : '#2d6a6a';
+            var bgColor = opts.color && opts.color.light ? opts.color.light : '#ffffff';
+
+            var generator = new QRCodeGenerator();
+            var matrix = generator.createMatrix(text);
+            var cellSize = (size - margin * 2) / matrix.length;
+
+            var ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, size, size);
+
+            ctx.fillStyle = fgColor;
+            for (var i = 0; i < matrix.length; i++) {
+                for (var j = 0; j < matrix[i].length; j++) {
+                    if (matrix[i][j]) {
+                        ctx.fillRect(j * cellSize + margin, i * cellSize + margin, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
         const audioFiles = [
             { name: '入学不愁', urlId: 'url1', qrId: 'qr1', dlId: 'dl1' },
             { name: '学费不慌', urlId: 'url2', qrId: 'qr2', dlId: 'dl2' },
@@ -306,32 +411,20 @@
         ];
 
         function generateAllQR() {
-            audioFiles.forEach(audio => {
-                const url = document.getElementById(audio.urlId).value.trim();
-                const qrContainer = document.getElementById(audio.qrId);
-                const downloadBtn = document.getElementById(audio.dlId);
-
-                // 清空容器
+            audioFiles.forEach(function(audio) {
+                var url = document.getElementById(audio.urlId).value.trim();
+                var qrContainer = document.getElementById(audio.qrId);
+                var downloadBtn = document.getElementById(audio.dlId);
                 qrContainer.innerHTML = '';
-
                 if (url) {
-                    // 生成二维码
-                    QRCode.toCanvas(url, {
+                    var canvas = document.createElement('canvas');
+                    drawQRCode(canvas, url, {
                         width: 200,
                         margin: 2,
-                        color: {
-                            dark: '#2d6a6a',
-                            light: '#ffffff'
-                        }
-                    }, function(error, canvas) {
-                        if (error) {
-                            qrContainer.innerHTML = '<div class="placeholder">生成失败</div>';
-                            console.error(error);
-                            return;
-                        }
-                        qrContainer.appendChild(canvas);
-                        downloadBtn.disabled = false;
+                        color: { dark: '#2d6a6a', light: '#ffffff' }
                     });
+                    qrContainer.appendChild(canvas);
+                    downloadBtn.disabled = false;
                 } else {
                     qrContainer.innerHTML = '<div class="placeholder">请输入链接后生成</div>';
                     downloadBtn.disabled = true;
@@ -340,24 +433,18 @@
         }
 
         function downloadQR(qrId, name) {
-            const container = document.getElementById(qrId);
-            const canvas = container.querySelector('canvas');
+            var container = document.getElementById(qrId);
+            var canvas = container.querySelector('canvas');
             if (!canvas) return;
-
-            const link = document.createElement('a');
-            link.download = `${name}_二维码.png`;
+            var link = document.createElement('a');
+            link.download = name + '_二维码.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
-        function init() {
-            if (typeof QRCode !== 'undefined') {
-                generateAllQR();
-            } else {
-                setTimeout(init, 100);
-            }
-        }
-        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('DOMContentLoaded', function() {
+            generateAllQR();
+        });
     </script>
 </body>
 </html>

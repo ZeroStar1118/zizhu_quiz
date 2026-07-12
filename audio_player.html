@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>数智筑梦队 - 资助政策录音</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e0f7f6 0%, #f5f5f0 50%, #fce4ec 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .player-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .team-name {
+            color: #2d6a6a;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #333;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .play-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #2d6a6a 0%, #3d8a8a 100%);
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(45, 106, 106, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            padding-left: 10px;
+        }
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(45, 106, 106, 0.4);
+        }
+        .play-btn.playing {
+            background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%);
+            box-shadow: 0 8px 25px rgba(244, 143, 177, 0.3);
+        }
+        .status {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2d6a6a, #4db6ac);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2d6a6a;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-card">
+        <div class="team-name">数智筑梦队</div>
+        <h1 class="title" id="audioTitle">资助政策录音</h1>
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="status" id="status">点击按钮播放录音</div>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="error" id="error"></div>
+        <a class="back-link" href="index.html">返回资助问答首页</a>
+    </div>
+
+    <audio id="audioPlayer" preload="none"></audio>
+
+    <script>
+        var audioMap = {
+            '1': { title: '入学不愁', file: 'audio1_ruxue_m4a' },
+            '2': { title: '学费不慌', file: 'audio2_xuefei_m4a' },
+            '3': { title: '生活有助', file: 'audio3_shenghuo_m4a' },
+            '4': { title: '升学不断', file: 'audio4_shengxue_m4a' },
+            '5': { title: '广东专项', file: 'audio5_guangdong_m4a' },
+            '6': { title: '优秀有奖', file: 'audio6_youxiu_m4a' }
+        };
+
+        function getQueryParam(name) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        var id = getQueryParam('id') || '1';
+        var audioInfo = audioMap[id];
+        var audio = document.getElementById('audioPlayer');
+        var playBtn = document.getElementById('playBtn');
+        var status = document.getElementById('status');
+        var error = document.getElementById('error');
+        var progressContainer = document.getElementById('progressContainer');
+        var progressBar = document.getElementById('progressBar');
+
+        if (audioInfo) {
+            document.getElementById('audioTitle').textContent = audioInfo.title;
+            audio.src = audioInfo.file + '.m4a';
+        } else {
+            document.getElementById('audioTitle').textContent = '录音不存在';
+            playBtn.style.display = 'none';
+            status.textContent = '请检查链接是否正确';
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play().then(function() {
+                    playBtn.textContent = '❚❚';
+                    playBtn.classList.add('playing');
+                    status.textContent = '正在播放...';
+                    progressContainer.style.display = 'block';
+                    error.textContent = '';
+                }).catch(function(err) {
+                    error.textContent = '播放失败：' + err.message;
+                });
+            } else {
+                audio.pause();
+                playBtn.textContent = '▶';
+                playBtn.classList.remove('playing');
+                status.textContent = '已暂停';
+            }
+        }
+
+        audio.addEventListener('ended', function() {
+            playBtn.textContent = '▶';
+            playBtn.classList.remove('playing');
+            status.textContent = '播放完成';
+            progressBar.style.width = '0%';
+        });
+
+        audio.addEventListener('error', function() {
+            error.textContent = '音频加载失败，请检查网络连接';
+            playBtn.textContent = '▶';
+            playBtn.classList.remove('playing');
+            status.textContent = '加载失败';
+        });
+
+        audio.addEventListener('timeupdate', function() {
+            if (audio.duration) {
+                var percent = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = percent + '%';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -157,249 +157,424 @@
     <button class="print-btn" onclick="window.print()">打印二维码</button>
 
     <script>
-        function QRCodeGenerator() {
-            this.ALPHANUMERIC_TABLE = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
-            this.G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
-            this.G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
-            this.G15_MASK = (1 << 15) - 1;
-        }
+        var QRCode = (function() {
+            var ALPHANUMERIC_TABLE = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+            var QRMODE_NUMERIC = 1;
+            var QRMODE_ALPHANUMERIC = 2;
+            var QRMODE_BYTE = 4;
 
-        QRCodeGenerator.prototype.encode = function(data) {
-            var mode = this.getMode(data);
-            var bits = [];
-            bits = bits.concat(this.toBits(mode, 4));
-            bits = bits.concat(this.toBits(data.length, mode === 1 ? 10 : mode === 2 ? 9 : 8));
-            bits = bits.concat(this.encodeData(data, mode));
-            while (bits.length % 8 !== 0) bits.push(0);
-            var blocks = this.getBlocks(bits);
-            var finalBits = [];
-            blocks.forEach(function(block) {
-                finalBits = finalBits.concat(block.data);
-                finalBits = finalBits.concat(block.ecc);
-            });
-            return finalBits;
-        };
+            var G15 = 0x537;
+            var G18 = 0x1f25;
 
-        QRCodeGenerator.prototype.getMode = function(data) {
-            if (/^[0-9]+$/.test(data)) return 1;
-            if (/^[A-Z0-9 $%*+\-.\/:]+$/.test(data)) return 2;
-            return 4;
-        };
-
-        QRCodeGenerator.prototype.toBits = function(value, length) {
-            var bits = [];
-            for (var i = length - 1; i >= 0; i--) bits.push((value >> i) & 1);
-            return bits;
-        };
-
-        QRCodeGenerator.prototype.encodeData = function(data, mode) {
-            var bits = [];
-            if (mode === 1) {
-                for (var i = 0; i < data.length; i += 3) {
-                    var num = parseInt(data.substr(i, 3)) || 0;
-                    bits = bits.concat(this.toBits(num, 10));
-                }
-            } else if (mode === 2) {
-                for (var i = 0; i < data.length; i += 2) {
-                    var c1 = this.ALPHANUMERIC_TABLE.indexOf(data[i]);
-                    var c2 = i + 1 < data.length ? this.ALPHANUMERIC_TABLE.indexOf(data[i + 1]) : 0;
-                    bits = bits.concat(this.toBits(c1 * 45 + c2, 11));
-                }
-            } else {
-                for (var i = 0; i < data.length; i++) {
-                    bits = bits.concat(this.toBits(data.charCodeAt(i), 8));
-                }
-            }
-            return bits;
-        };
-
-        QRCodeGenerator.prototype.getBlocks = function(bits) {
-            var totalCount = bits.length / 8;
-            var version = this.getVersion(totalCount);
-            var ecLevel = 0;
-            var blockInfo = this.getBlockInfo(version, ecLevel);
-            var blocks = [];
-            var blockSize = Math.floor(totalCount / blockInfo.totalBlocks);
-            var remainder = totalCount % blockInfo.totalBlocks;
-            var dataIndex = 0;
-            for (var i = 0; i < blockInfo.totalBlocks; i++) {
-                var size = blockSize + (i < remainder ? 1 : 0);
-                var data = bits.slice(dataIndex * 8, (dataIndex + size) * 8);
-                var ecc = this.generateECC(data, blockInfo.eccPerBlock);
-                blocks.push({ data: data, ecc: ecc });
-                dataIndex += size;
-            }
-            return blocks;
-        };
-
-        QRCodeGenerator.prototype.getVersion = function(count) {
-            var thresholds = [0, 17, 32, 53, 78, 106, 134, 154, 192, 230, 271, 321, 367, 425, 458, 520, 586, 644, 718, 792, 858, 929, 1003, 1091, 1171];
-            for (var i = 1; i < thresholds.length; i++) {
-                if (count <= thresholds[i]) return i;
-            }
-            return 25;
-        };
-
-        QRCodeGenerator.prototype.getBlockInfo = function(version, ecLevel) {
-            var info = [
-                [{totalBlocks:1, ecPerBlock:7}, {totalBlocks:1, ecPerBlock:10}, {totalBlocks:1, ecPerBlock:13}, {totalBlocks:1, ecPerBlock:17}],
-                [{totalBlocks:1, ecPerBlock:10}, {totalBlocks:1, ecPerBlock:16}, {totalBlocks:1, ecPerBlock:22}, {totalBlocks:1, ecPerBlock:28}],
-                [{totalBlocks:1, ecPerBlock:15}, {totalBlocks:1, ecPerBlock:26}, {totalBlocks:2, ecPerBlock:18}, {totalBlocks:2, ecPerBlock:22}],
-                [{totalBlocks:1, ecPerBlock:20}, {totalBlocks:2, ecPerBlock:18}, {totalBlocks:2, ecPerBlock:26}, {totalBlocks:4, ecPerBlock:16}],
-                [{totalBlocks:1, ecPerBlock:26}, {totalBlocks:1, ecPerBlock:36}, {totalBlocks:2, ecPerBlock:36}, {totalBlocks:2, ecPerBlock:44}],
-                [{totalBlocks:2, ecPerBlock:18}, {totalBlocks:2, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:30}],
-                [{totalBlocks:2, ecPerBlock:20}, {totalBlocks:2, ecPerBlock:30}, {totalBlocks:2, ecPerBlock:42}, {totalBlocks:4, ecPerBlock:36}],
-                [{totalBlocks:2, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:24}, {totalBlocks:4, ecPerBlock:38}, {totalBlocks:4, ecPerBlock:48}],
-                [{totalBlocks:2, ecPerBlock:30}, {totalBlocks:2, ecPerBlock:42}, {totalBlocks:4, ecPerBlock:46}, {totalBlocks:5, ecPerBlock:42}]
-            ];
-            return info[Math.min(version - 1, info.length - 1)][ecLevel];
-        };
-
-        QRCodeGenerator.prototype.generateECC = function(data, eccCount) {
-            var poly = eccCount === 7 ? this.G15 : this.G18;
-            var polyCount = eccCount === 7 ? 15 : 18;
-            var reg = (1 << polyCount) - 1;
-            for (var i = 0; i < data.length; i++) {
-                var bit = data[i];
-                if ((reg >> (polyCount - 1)) & 1) {
-                    reg = ((reg << 1) ^ poly) & this.G15_MASK;
-                } else {
-                    reg = (reg << 1) & this.G15_MASK;
-                }
-                if (bit) reg ^= 1;
-            }
-            for (var i = 0; i < polyCount; i++) {
-                if ((reg >> (polyCount - 1)) & 1) {
-                    reg = ((reg << 1) ^ poly) & this.G15_MASK;
-                } else {
-                    reg = (reg << 1) & this.G15_MASK;
-                }
-            }
-            return this.toBits(reg, polyCount);
-        };
-
-        QRCodeGenerator.prototype.createMatrix = function(data) {
-            var bits = this.encode(data);
-            var version = this.getVersion(bits.length / 8);
-            var size = version * 4 + 17;
-            var matrix = [];
-            for (var i = 0; i < size; i++) matrix[i] = [];
-            this.addFinderPatterns(matrix, size);
-            this.addAlignmentPatterns(matrix, version, size);
-            this.addTimingPatterns(matrix, size);
-            this.addFormatInfo(matrix, size, 0);
-            this.addVersionInfo(matrix, version, size);
-            this.fillData(matrix, bits, size);
-            return matrix;
-        };
-
-        QRCodeGenerator.prototype.addFinderPatterns = function(matrix, size) {
-            var positions = [[0, 0], [size - 7, 0], [0, size - 7]];
-            positions.forEach(function(pos) {
-                for (var i = -1; i <= 7; i++) {
-                    for (var j = -1; j <= 7; j++) {
-                        var x = pos[0] + i, y = pos[1] + j;
-                        if (x < 0 || x >= size || y < 0 || y >= size) continue;
-                        var isOuter = i === -1 || i === 7 || j === -1 || j === 7;
-                        var isInner = i >= 2 && i <= 4 && j >= 2 && j <= 4;
-                        matrix[x][y] = isOuter || isInner ? 1 : 0;
+            function toUtf8(text) {
+                var result = [];
+                for (var i = 0; i < text.length; i++) {
+                    var c = text.charCodeAt(i);
+                    if (c < 0x80) {
+                        result.push(c);
+                    } else if (c < 0x800) {
+                        result.push(0xC0 | (c >> 6), 0x80 | (c & 0x3F));
+                    } else if (c < 0x10000) {
+                        result.push(0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F), 0x80 | (c & 0x3F));
+                    } else {
+                        result.push(0xF0 | (c >> 18), 0x80 | ((c >> 12) & 0x3F), 0x80 | ((c >> 6) & 0x3F), 0x80 | (c & 0x3F));
                     }
                 }
-            });
-        };
+                return result;
+            }
 
-        QRCodeGenerator.prototype.addAlignmentPatterns = function(matrix, version, size) {
-            if (version < 2) return;
-            var positions = [6];
-            var count = Math.floor(version / 7) + 2;
-            var step = (size - 13) / (count - 1);
-            for (var i = 0; i < count - 1; i++) positions.push(Math.floor(6 + (i + 1) * step));
-            positions.forEach(function(x) {
-                positions.forEach(function(y) {
-                    if ((x < 9 && y < 9) || (x < 9 && y > size - 9) || (x > size - 9 && y < 9)) return;
-                    for (var i = -2; i <= 2; i++) {
-                        for (var j = -2; j <= 2; j++) {
-                            var isOuter = i === -2 || i === 2 || j === -2 || j === 2;
-                            var isInner = i === 0 && j === 0;
-                            matrix[x + i][y + j] = isOuter || isInner ? 1 : 0;
+            function getMode(text) {
+                if (/^[0-9]+$/.test(text)) return QRMODE_NUMERIC;
+                if (/^[A-Z0-9 $%*+\-.\/:]+$/.test(text)) return QRMODE_ALPHANUMERIC;
+                return QRMODE_BYTE;
+            }
+
+            function encodeNumeric(text) {
+                var result = [];
+                for (var i = 0; i < text.length; i += 3) {
+                    var num = parseInt(text.substr(i, 3));
+                    if (text.length - i == 1) {
+                        result = result.concat(toBits(num, 4));
+                    } else if (text.length - i == 2) {
+                        result = result.concat(toBits(num, 7));
+                    } else {
+                        result = result.concat(toBits(num, 10));
+                    }
+                }
+                return result;
+            }
+
+            function encodeAlphanumeric(text) {
+                var result = [];
+                for (var i = 0; i < text.length; i += 2) {
+                    var c1 = ALPHANUMERIC_TABLE.indexOf(text[i]);
+                    var c2 = (i + 1 < text.length) ? ALPHANUMERIC_TABLE.indexOf(text[i + 1]) : 0;
+                    var val = c1 * 45 + c2;
+                    result = result.concat(toBits(val, 11));
+                }
+                return result;
+            }
+
+            function encodeByte(text) {
+                var utf8 = toUtf8(text);
+                var result = [];
+                for (var i = 0; i < utf8.length; i++) {
+                    result = result.concat(toBits(utf8[i], 8));
+                }
+                return result;
+            }
+
+            function toBits(value, length) {
+                var bits = [];
+                for (var i = length - 1; i >= 0; i--) {
+                    bits.push((value >> i) & 1);
+                }
+                return bits;
+            }
+
+            function getVersion(text, ecLevel) {
+                var utf8Len = toUtf8(text).length;
+                var capacities = [
+                    {L:17,M:14,Q:11,H:7}, {L:32,M:26,Q:20,H:14}, {L:53,M:42,Q:32,H:24},
+                    {L:78,M:62,Q:46,H:34}, {L:106,M:84,Q:60,H:44}, {L:134,M:106,Q:74,H:55},
+                    {L:154,M:122,Q:86,H:64}, {L:192,M:152,Q:108,H:77}, {L:230,M:180,Q:130,H:90},
+                    {L:271,M:213,Q:151,H:106}, {L:321,M:251,Q:177,H:122}, {L:367,M:287,Q:203,H:140}
+                ];
+                for (var i = 0; i < capacities.length; i++) {
+                    if (utf8Len <= capacities[i][ecLevel]) return i + 1;
+                }
+                return 12;
+            }
+
+            function getBlockInfo(version, ecLevel) {
+                var info = [
+                    [{total:1, data:19, ec:7}, {total:1, data:16, ec:10}, {total:1, data:13, ec:13}, {total:1, data:9, ec:17}],
+                    [{total:1, data:34, ec:10}, {total:1, data:28, ec:16}, {total:1, data:22, ec:22}, {total:1, data:16, ec:28}],
+                    [{total:1, data:55, ec:15}, {total:1, data:44, ec:26}, {total:2, data:17, ec:18}, {total:2, data:13, ec:22}],
+                    [{total:1, data:80, ec:20}, {total:2, data:32, ec:18}, {total:2, data:24, ec:26}, {total:4, data:9, ec:16}],
+                    [{total:1, data:108, ec:26}, {total:1, data:86, ec:36}, {total:2, data:36, ec:36}, {total:2, data:27, ec:44}],
+                    [{total:2, data:68, ec:18}, {total:2, data:54, ec:24}, {total:4, data:24, ec:24}, {total:4, data:18, ec:30}],
+                    [{total:2, data:78, ec:20}, {total:2, data:64, ec:30}, {total:2, data:46, ec:42}, {total:4, data:33, ec:36}],
+                    [{total:2, data:97, ec:24}, {total:4, data:43, ec:24}, {total:4, data:34, ec:38}, {total:4, data:30, ec:48}],
+                    [{total:2, data:116, ec:30}, {total:2, data:86, ec:42}, {total:4, data:43, ec:46}, {total:5, data:32, ec:42}],
+                    [{total:2, data:134, ec:36}, {total:2, data:101, ec:52}, {total:4, data:50, ec:54}, {total:5, data:38, ec:52}],
+                    [{total:2, data:154, ec:42}, {total:4, data:68, ec:36}, {total:6, data:36, ec:42}, {total:5, data:44, ec:62}],
+                    [{total:4, data:86, ec:24}, {total:4, data:68, ec:30}, {total:4, data:54, ec:46}, {total:8, data:31, ec:36}]
+                ];
+                return info[Math.min(version - 1, info.length - 1)][{'L':0,'M':1,'Q':2,'H':3}[ecLevel]];
+            }
+
+            function generateEC(data, ecCount) {
+                var poly = ecCount === 7 ? G15 : ecCount === 10 ? G18 : G18;
+                var degree = ecCount === 7 ? 10 : ecCount === 10 ? 13 : 15;
+                var reg = [];
+                for (var i = 0; i < degree; i++) reg.push(0);
+                for (var i = 0; i < data.length; i++) {
+                    var feedback = reg.shift() ^ data[i];
+                    reg.push(0);
+                    for (var j = 0; j < degree; j++) {
+                        if ((poly >> (degree - 1 - j)) & 1) {
+                            reg[j] ^= feedback;
                         }
                     }
-                });
-            });
-        };
-
-        QRCodeGenerator.prototype.addTimingPatterns = function(matrix, size) {
-            for (var i = 8; i < size - 8; i++) {
-                matrix[6][i] = i % 2 === 0 ? 1 : 0;
-                matrix[i][6] = i % 2 === 0 ? 1 : 0;
+                }
+                for (var i = 0; i < degree; i++) {
+                    var feedback = reg.shift();
+                    reg.push(0);
+                    for (var j = 0; j < degree; j++) {
+                        if ((poly >> (degree - 1 - j)) & 1) {
+                            reg[j] ^= feedback;
+                        }
+                    }
+                }
+                return reg;
             }
-        };
 
-        QRCodeGenerator.prototype.addFormatInfo = function(matrix, size, ecLevel) {
-            var format = (ecLevel << 3) | 0;
-            var mask = 0x5412;
-            var data = format ^ mask;
-            for (var i = 0; i < 15; i++) {
-                var bit = (data >> i) & 1;
-                if (i < 6) { matrix[i][8] = bit; matrix[8][size - 1 - i] = bit; }
-                else if (i === 6) { matrix[6][8] = bit; }
-                else { matrix[size - 15 + i][8] = bit; matrix[8][15 - i] = bit; }
+            function bitsToBytes(bits) {
+                var bytes = [];
+                for (var i = 0; i < bits.length; i += 8) {
+                    var byte = 0;
+                    for (var j = 0; j < 8; j++) {
+                        byte = (byte << 1) | (bits[i + j] || 0);
+                    }
+                    bytes.push(byte);
+                }
+                return bytes;
             }
-        };
 
-        QRCodeGenerator.prototype.addVersionInfo = function(matrix, version, size) {
-            if (version < 7) return;
-            var data = version;
-            for (var i = 0; i < 18; i++) {
-                var bit = (data >> i) & 1;
-                var row = Math.floor(i / 3);
-                var col = i % 3;
-                matrix[row][size - 11 + col] = bit;
-                matrix[size - 11 + col][row] = bit;
+            function bytesToBits(bytes) {
+                var bits = [];
+                for (var i = 0; i < bytes.length; i++) {
+                    bits = bits.concat(toBits(bytes[i], 8));
+                }
+                return bits;
             }
-        };
 
-        QRCodeGenerator.prototype.fillData = function(matrix, bits, size) {
-            var bitIndex = 0;
-            for (var col = size - 1; col > 0; col -= 2) {
-                for (var row = size - 1; row >= 0; row--) {
-                    for (var j = 0; j < 2; j++) {
-                        var c = col - j;
-                        if (c <= 6) continue;
-                        if (matrix[row][c] !== undefined) continue;
-                        matrix[row][c] = bitIndex < bits.length ? bits[bitIndex++] : 0;
+            function encode(text) {
+                var mode = getMode(text);
+                var ecLevel = 'L';
+                var version = getVersion(text, ecLevel);
+                var blockInfo = getBlockInfo(version, ecLevel);
+
+                var bits = [];
+                bits = bits.concat(toBits(mode, 4));
+                
+                var textLen = (mode === QRMODE_BYTE) ? toUtf8(text).length : text.length;
+                var lenBits = mode === QRMODE_NUMERIC ? 10 : mode === QRMODE_ALPHANUMERIC ? 9 : 8;
+                bits = bits.concat(toBits(textLen, lenBits));
+
+                if (mode === QRMODE_NUMERIC) bits = bits.concat(encodeNumeric(text));
+                else if (mode === QRMODE_ALPHANUMERIC) bits = bits.concat(encodeAlphanumeric(text));
+                else bits = bits.concat(encodeByte(text));
+
+                while (bits.length % 8 !== 0) bits.push(0);
+
+                var bytes = bitsToBytes(bits);
+                var totalDataBytes = blockInfo.total * blockInfo.data;
+                while (bytes.length < totalDataBytes) {
+                    bytes.push(bytes.length % 2 === 0 ? 0xEC : 0x11);
+                }
+
+                var blocks = [];
+                for (var i = 0; i < blockInfo.total; i++) {
+                    var start = i * blockInfo.data;
+                    var data = bytes.slice(start, start + blockInfo.data);
+                    var ec = generateEC(data, blockInfo.ec);
+                    blocks.push({ data: data, ec: ec });
+                }
+
+                var finalBytes = [];
+                for (var i = 0; i < blockInfo.data; i++) {
+                    for (var j = 0; j < blockInfo.total; j++) {
+                        finalBytes.push(blocks[j].data[i]);
+                    }
+                }
+                for (var i = 0; i < blockInfo.ec; i++) {
+                    for (var j = 0; j < blockInfo.total; j++) {
+                        finalBytes.push(blocks[j].ec[i]);
+                    }
+                }
+
+                return { bits: bytesToBits(finalBytes), version: version, ecLevel: ecLevel };
+            }
+
+            function createMatrix(data) {
+                var version = data.version;
+                var size = version * 4 + 17;
+                var matrix = [];
+                var reserved = [];
+                for (var i = 0; i < size; i++) {
+                    matrix[i] = [];
+                    reserved[i] = [];
+                    for (var j = 0; j < size; j++) {
+                        matrix[i][j] = null;
+                        reserved[i][j] = false;
+                    }
+                }
+
+                drawFinder(matrix, reserved, 0, 0);
+                drawFinder(matrix, reserved, size - 7, 0);
+                drawFinder(matrix, reserved, 0, size - 7);
+
+                if (version >= 2) {
+                    drawAlignment(matrix, reserved, version, size);
+                }
+
+                drawTiming(matrix, reserved, size);
+
+                drawDarkModule(matrix, reserved, size);
+
+                if (version >= 7) {
+                    drawVersionInfo(matrix, reserved, version, size);
+                }
+
+                fillData(matrix, reserved, data.bits, size);
+
+                applyMask(matrix, reserved, 0, size);
+
+                drawFormatInfo(matrix, reserved, data.ecLevel, 0, size);
+
+                return matrix;
+            }
+
+            function drawFinder(matrix, reserved, row, col) {
+                for (var i = -1; i <= 7; i++) {
+                    for (var j = -1; j <= 7; j++) {
+                        var r = row + i;
+                        var c = col + j;
+                        if (r < 0 || r >= matrix.length || c < 0 || c >= matrix.length) continue;
+                        reserved[r][c] = true;
+                        if (i === -1 || i === 7 || j === -1 || j === 7) {
+                            matrix[r][c] = true;
+                        } else if (i >= 1 && i <= 5 && j >= 1 && j <= 5) {
+                            if (i === 1 || i === 5 || j === 1 || j === 5) {
+                                matrix[r][c] = true;
+                            } else if (i >= 2 && i <= 4 && j >= 2 && j <= 4) {
+                                if (i === 2 || i === 4 || j === 2 || j === 4) {
+                                    matrix[r][c] = false;
+                                } else {
+                                    matrix[r][c] = true;
+                                }
+                            }
+                        } else {
+                            matrix[r][c] = false;
+                        }
                     }
                 }
             }
-        };
 
-        function drawQRCode(canvas, text, options) {
-            var opts = options || {};
-            var size = opts.width || 200;
-            var margin = opts.margin || 2;
-            var fgColor = opts.color && opts.color.dark ? opts.color.dark : '#2d6a6a';
-            var bgColor = opts.color && opts.color.light ? opts.color.light : '#ffffff';
-
-            var generator = new QRCodeGenerator();
-            var matrix = generator.createMatrix(text);
-            var cellSize = (size - margin * 2) / matrix.length;
-
-            var ctx = canvas.getContext('2d');
-            canvas.width = size;
-            canvas.height = size;
-
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, size, size);
-
-            ctx.fillStyle = fgColor;
-            for (var i = 0; i < matrix.length; i++) {
-                for (var j = 0; j < matrix[i].length; j++) {
-                    if (matrix[i][j]) {
-                        ctx.fillRect(j * cellSize + margin, i * cellSize + margin, cellSize, cellSize);
+            function drawAlignment(matrix, reserved, version, size) {
+                var positions = [6];
+                var count = Math.floor(version / 7) + 2;
+                var step = (size - 13) / (count - 1);
+                for (var i = 0; i < count - 1; i++) {
+                    positions.push(Math.floor(6 + (i + 1) * step));
+                }
+                for (var i = 0; i < positions.length; i++) {
+                    for (var j = 0; j < positions.length; j++) {
+                        var x = positions[i];
+                        var y = positions[j];
+                        if ((x < 9 && y < 9) || (x < 9 && y > size - 9) || (x > size - 9 && y < 9)) continue;
+                        for (var dx = -2; dx <= 2; dx++) {
+                            for (var dy = -2; dy <= 2; dy++) {
+                                reserved[x + dx][y + dy] = true;
+                                if (dx === -2 || dx === 2 || dy === -2 || dy === 2) {
+                                    matrix[x + dx][y + dy] = true;
+                                } else if (dx === 0 && dy === 0) {
+                                    matrix[x + dx][y + dy] = true;
+                                } else {
+                                    matrix[x + dx][y + dy] = false;
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
+
+            function drawTiming(matrix, reserved, size) {
+                for (var i = 8; i < size - 8; i++) {
+                    reserved[6][i] = true;
+                    reserved[i][6] = true;
+                    matrix[6][i] = (i % 2 === 0);
+                    matrix[i][6] = (i % 2 === 0);
+                }
+            }
+
+            function drawDarkModule(matrix, reserved, size) {
+                reserved[size - 8][8] = true;
+                matrix[size - 8][8] = true;
+            }
+
+            function drawVersionInfo(matrix, reserved, version, size) {
+                var data = version;
+                var bits = [];
+                for (var i = 0; i < 18; i++) bits.push((data >> i) & 1);
+                for (var i = 0; i < 18; i++) {
+                    var row = Math.floor(i / 3);
+                    var col = i % 3;
+                    reserved[row][size - 11 + col] = true;
+                    reserved[size - 11 + col][row] = true;
+                    matrix[row][size - 11 + col] = bits[i];
+                    matrix[size - 11 + col][row] = bits[i];
+                }
+            }
+
+            function fillData(matrix, reserved, bits, size) {
+                var bitIdx = 0;
+                var col = size - 1;
+                while (col > 0) {
+                    if (col === 6) col--;
+                    for (var row = size - 1; row >= 0; row--) {
+                        for (var j = 0; j < 2; j++) {
+                            var c = col - j;
+                            if (c < 0) continue;
+                            if (!reserved[row][c] && matrix[row][c] === null) {
+                                matrix[row][c] = bitIdx < bits.length ? bits[bitIdx++] : false;
+                            }
+                        }
+                    }
+                    col -= 2;
+                }
+            }
+
+            function applyMask(matrix, reserved, maskPattern, size) {
+                var masks = [
+                    function(i, j) { return (i + j) % 2 === 0; },
+                    function(i, j) { return i % 2 === 0; },
+                    function(i, j) { return j % 3 === 0; },
+                    function(i, j) { return (i + j) % 3 === 0; },
+                    function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0; },
+                    function(i, j) { return (i * j) % 2 + (i * j) % 3 === 0; },
+                    function(i, j) { return ((i * j) % 2 + (i * j) % 3) % 2 === 0; },
+                    function(i, j) { return ((i * j) % 3 + (i + j) % 2) % 2 === 0; }
+                ];
+                var mask = masks[maskPattern];
+                for (var i = 0; i < size; i++) {
+                    for (var j = 0; j < size; j++) {
+                        if (!reserved[i][j] && matrix[i][j] !== null) {
+                            if (mask(i, j)) {
+                                matrix[i][j] = !matrix[i][j];
+                            }
+                        }
+                    }
+                }
+            }
+
+            function drawFormatInfo(matrix, reserved, ecLevel, maskPattern, size) {
+                var ecMap = {'L':0,'M':1,'Q':2,'H':3};
+                var data = (ecMap[ecLevel] << 3) | maskPattern;
+                var mask = 0x5412;
+                var encoded = data ^ mask;
+                
+                for (var i = 0; i < 15; i++) {
+                    var bit = (encoded >> i) & 1;
+                    if (i < 6) {
+                        reserved[i][8] = true;
+                        reserved[8][size - 1 - i] = true;
+                        matrix[i][8] = bit;
+                        matrix[8][size - 1 - i] = bit;
+                    } else if (i === 6) {
+                        reserved[6][8] = true;
+                        matrix[6][8] = bit;
+                    } else {
+                        reserved[size - 15 + i][8] = true;
+                        reserved[8][15 - i] = true;
+                        matrix[size - 15 + i][8] = bit;
+                        matrix[8][15 - i] = bit;
+                    }
+                }
+            }
+
+            function draw(canvas, text, options) {
+                var opts = options || {};
+                var size = opts.width || 200;
+                var margin = opts.margin || 2;
+                var fgColor = opts.color && opts.color.dark ? opts.color.dark : '#2d6a6a';
+                var bgColor = opts.color && opts.color.light ? opts.color.light : '#ffffff';
+
+                var encoded = encode(text);
+                var matrix = createMatrix(encoded);
+                var cellSize = (size - margin * 2) / matrix.length;
+
+                var ctx = canvas.getContext('2d');
+                canvas.width = size;
+                canvas.height = size;
+
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, size, size);
+
+                ctx.fillStyle = fgColor;
+                for (var i = 0; i < matrix.length; i++) {
+                    for (var j = 0; j < matrix[i].length; j++) {
+                        if (matrix[i][j]) {
+                            ctx.fillRect(j * cellSize + margin, i * cellSize + margin, cellSize, cellSize);
+                        }
+                    }
+                }
+            }
+
+            return { draw: draw };
+        })();
 
         const audioFiles = [
             { name: '入学不愁', urlId: 'url1', qrId: 'qr1', dlId: 'dl1' },
@@ -418,7 +593,7 @@
                 qrContainer.innerHTML = '';
                 if (url) {
                     var canvas = document.createElement('canvas');
-                    drawQRCode(canvas, url, {
+                    QRCode.draw(canvas, url, {
                         width: 200,
                         margin: 2,
                         color: { dark: '#2d6a6a', light: '#ffffff' }

@@ -201,34 +201,34 @@
     </div>
 
     <div class="input-section">
-        <h3>请输入各录音文件的在线链接（GitHub Pages 或其他网盘链接）</h3>
+        <h3>录音文件在线链接（已自动配置为 GitHub Pages 地址）</h3>
         <div class="url-inputs">
             <div class="url-row">
                 <label>入学不愁</label>
-                <input type="text" id="url1" placeholder="例如: https://yourusername.github.io/audio/入学不愁.m4a">
+                <input type="text" id="url1" value="https://zerostar1118.github.io/zizhu_quiz/入学不愁.m4a">
             </div>
             <div class="url-row">
                 <label>学费不慌</label>
-                <input type="text" id="url2" placeholder="例如: https://yourusername.github.io/audio/学费不慌.m4a">
+                <input type="text" id="url2" value="https://zerostar1118.github.io/zizhu_quiz/学费不慌.m4a">
             </div>
             <div class="url-row">
                 <label>生活有助</label>
-                <input type="text" id="url3" placeholder="例如: https://yourusername.github.io/audio/生活有助.m4a">
+                <input type="text" id="url3" value="https://zerostar1118.github.io/zizhu_quiz/生活有助.m4a">
             </div>
             <div class="url-row">
                 <label>升学不断</label>
-                <input type="text" id="url4" placeholder="例如: https://yourusername.github.io/audio/升学不断.m4a">
+                <input type="text" id="url4" value="https://zerostar1118.github.io/zizhu_quiz/升学不断.m4a">
             </div>
             <div class="url-row">
                 <label>广东专项</label>
-                <input type="text" id="url5" placeholder="例如: https://yourusername.github.io/audio/广东专项.m4a">
+                <input type="text" id="url5" value="https://zerostar1118.github.io/zizhu_quiz/广东专项.m4a">
             </div>
             <div class="url-row">
                 <label>优秀有奖</label>
-                <input type="text" id="url6" placeholder="例如: https://yourusername.github.io/audio/优秀有奖.m4a">
+                <input type="text" id="url6" value="https://zerostar1118.github.io/zizhu_quiz/优秀有奖.m4a">
             </div>
         </div>
-        <button class="generate-btn" onclick="generateAllQR()">生成二维码</button>
+        <button class="generate-btn" onclick="generateAllQR()">重新生成二维码</button>
     </div>
 
     <div class="qr-grid" id="qrGrid">
@@ -349,6 +349,11 @@
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
+
+        // 页面加载时自动生成二维码
+        window.onload = function() {
+            generateAllQR();
+        };
     </script>
 </body>
 </html>

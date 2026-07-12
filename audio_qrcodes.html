@@ -182,7 +182,7 @@
                 this._data = t;
             },
             make: function() {
-                this._qrCode = QRCodeModel(this._typeNumber, this._errorCorrectionLevel);
+                this._qrCode = new QRCodeModel(this._typeNumber, this._errorCorrectionLevel);
                 this._qrCode.addData(this._data);
                 this._qrCode.make();
             },
